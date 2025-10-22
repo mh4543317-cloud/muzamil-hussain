@@ -1,192 +1,375 @@
-<!DOCTYPE html>
+<!--
+Royal Animated Birthday Website for "Shehzadi" — single-file HTML
+Features:
+- Full-screen magical entrance with golden sparkles
+- Fireworks (canvas), shooting stars, floating particles
+- Balloons, butterflies, hearts floating
+- Big animated royal cake with candles; "blow" animation including smoke and sparkles
+- Typing effect for a custom message
+- Autoplay-friendly background music with toggle (paste URL or use default)
+- "Open Gift" interactive reveal that shows a heartfelt message
+- Download greeting as PNG
+- Responsive and accessible
+
+Save as `shehzadi-birthday.html` and open in a modern browser.
+-->
+
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern Portfolio</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday Shehzadi 👸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:wght@300;600;800;900&display=swap" rel="stylesheet">
   <style>
-    body {font-family: 'Poppins', sans-serif;}
-    header {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
-                  url("https://picsum.photos/1600/800?random=1") center/cover no-repeat;
-      color: white;
-      text-align: center;
-      padding: 120px 20px;
-    }
-    header h1 {font-size: 3.5rem; animation: fadeInDown 1s;}
-    header p {font-size: 1.3rem; color: #eee; animation: fadeInUp 1.5s;}
-    @keyframes fadeInDown {from {opacity:0; transform: translateY(-30px);} to {opacity:1; transform: translateY(0);}}
-    @keyframes fadeInUp {from {opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);}}
+    /* Reset & base */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body,#app{height:100%}
+    body{font-family:Nunito,system-ui,Segoe UI,Roboto,Arial;background:radial-gradient(ellipse at top,#061228 0%,#0b1830 40%,#071425 100%);color:#fff;overflow:hidden}
 
-    .skills .card {
-      transition: transform 0.3s, box-shadow 0.3s;
-      border: none;
-    }
-    .skills .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-    .skills i {font-size: 40px; color: #ffc107;}
+    /* Stage */
+    .stage{position:relative;width:100%;height:100vh;display:flex;align-items:center;justify-content:center}
 
-    .projects .card {
-      border: none;
-      overflow: hidden;
-      transition: transform 0.3s;
-    }
-    .projects .card img {transition: transform 0.5s;}
-    .projects .card:hover img {transform: scale(1.1);}
-    .projects .card:hover {transform: translateY(-8px);}
+    /* Entrance overlay */
+    .entrance{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:60;pointer-events:auto}
+    .greeting{font-family:'Great Vibes',cursive;font-size:56px;color:#FFD66B;text-shadow:0 8px 30px rgba(255,200,100,0.08);transform:scale(0.8);opacity:0;}
+    .subtitle{margin-top:12px;color:#fff9ea;opacity:0;font-weight:600}
 
-    
-    footer {
-      background: #141e30;
-      color: #aaa;
-      text-align: center;
-      padding: 20px 0;
-    }
+    /* Main card */
+    .card{width:95%;max-width:1200px;border-radius:20px;padding:24px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 20px 60px rgba(2,6,23,0.6);display:flex;gap:18px;align-items:stretch}
+    .left{flex:1;position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#091730,#041124);padding:28px}
+    .right{width:380px;padding:18px;display:flex;flex-direction:column;gap:12px}
+
+    /* Name big */
+    .bigname{font-family:'Great Vibes',cursive;font-size:48px;color:#FFE09A;text-shadow:0 6px 18px rgba(255,180,90,0.08);text-align:center}
+    .typing{font-size:18px;max-width:86%;margin:8px auto;color:#f4efe9;text-align:center}
+
+    /* Cake */
+    .cake-wrap{display:flex;align-items:center;justify-content:center;margin-top:8px}
+    .royal-cake{position:relative;width:360px;height:260px}
+    .layer{position:absolute;left:50%;transform:translateX(-50%);border-radius:18px}
+    .layer.bottom{bottom:18px;width:300px;height:110px;background:linear-gradient(180deg,#d8a9a9,#c17d87);box-shadow:0 12px 30px rgba(0,0,0,0.35)}
+    .layer.mid{bottom:84px;width:260px;height:90px;background:linear-gradient(180deg,#ffece6,#ffd6cc);box-shadow:inset 0 -8px 0 rgba(0,0,0,0.06)}
+    .layer.top{bottom:150px;width:220px;height:72px;background:linear-gradient(180deg,#fff7f0,#fff0e6)}
+    .icing{position:absolute;left:50%;transform:translateX(-50%);bottom:182px;width:210px;height:30px;border-radius:18px;background:linear-gradient(90deg,#ffd36b,#ff7b9c)}
+    .candles{position:absolute;left:50%;transform:translateX(-50%);bottom:198px;display:flex;gap:10px}
+    .candle{width:12px;height:40px;background:#fff;border-radius:3px;position:relative}
+    .flame{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:12px;height:18px;border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 30% 30%,#ffd96a,#ff8b3d);filter:drop-shadow(0 6px 8px rgba(255,140,60,0.15))}
+
+    /* smoke */
+    .smoke{position:absolute;left:50%;transform:translateX(-50%);bottom:220px;pointer-events:none}
+
+    /* Balloons/butterflies/hearts */
+    .decor{position:absolute;inset:0;pointer-events:none;z-index:20}
+    .balloon, .butterfly, .heart{position:absolute;opacity:0.95}
+    .butterfly{width:42px;height:32px;background:radial-gradient(circle at 30% 30%,#fff5,#ff9ec3);border-radius:50%;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.25));}
+    .heart{width:36px;height:36px}
+
+    /* Right controls styling */
+    label{font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:6px}
+    input[type='text'], textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff}
+    textarea{min-height:80px}
+    .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+    .primary{background:linear-gradient(180deg,#ffd36b,#ff7b9c);color:#231b20}
+    .secondary{background:linear-gradient(180deg,#2a9df4,#1b6cc3);color:#fff}
+
+    /* Footer buttons */
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+
+    /* Overlay message (gift) */
+    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,5,10,0.6);backdrop-filter:blur(4px);z-index:80;visibility:hidden;opacity:0;transition:opacity .4s ease}
+    .overlay.show{visibility:visible;opacity:1}
+    .gift{background:linear-gradient(180deg,#fff8ea,#fff1db);color:#2b1032;padding:28px;border-radius:16px;max-width:760px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+    .gift h2{font-family:'Great Vibes',cursive;font-size:42px;color:#b36bff;margin-bottom:6px}
+    .gift p{color:#3b2140}
+
+    /* Responsive */
+    @media (max-width:980px){.card{flex-direction:column}.right{width:100%}}
+
+    /* small helper */
+    .small{font-size:13px;opacity:0.9}
   </style>
 </head>
 <body>
+  <div id="app" class="stage">
 
+    <!-- fireworks canvas behind everything -->
+    <canvas id="fireworks" style="position:absolute;inset:0;z-index:1;pointer-events:none"></canvas>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">MyPortfolio</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-          <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
-          <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-        </ul>
+    <!-- decorative layer -->
+    <div class="decor" id="decor"></div>
+
+    <div class="card" role="main">
+      <div class="left">
+        <div class="bigname" id="bigname">For My Shehzadi 👸</div>
+        <div class="typing" id="typing">A special wish just for you —</div>
+
+        <div class="cake-wrap">
+          <div class="royal-cake" id="cake">
+            <div class="layer bottom"></div>
+            <div class="layer mid"></div>
+            <div class="layer top"></div>
+            <div class="icing"></div>
+            <div class="candles" id="candles"></div>
+            <svg class="smoke" id="smoke" width="140" height="120" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- smoke paths will be drawn by JS -->
+            </svg>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:12px">
+          <button class="btn primary" id="blowBtn">Blow Candles ✨</button>
+          <button class="btn secondary" id="giftBtn">Open Gift 🎁</button>
+        </div>
+
+      </div>
+
+      <div class="right">
+        <div>
+          <label>Recipient name</label>
+          <input type="text" id="nameInput" value="Shehzadi">
+        </div>
+
+        <div>
+          <label>Type your message</label>
+          <textarea id="msgInput">Aaj ka din meri zindagi ka sabse khoobsurat din hai,
+kyunke is din meri shehzadi is duniya mein aayi thi. 💖
+
+Tum meri duaon ka sabse khoobsurat jawab ho,
+meri muskaan ki wajah ho,
+aur meri zindagi ki roshni ho. ✨
+
+Allah tumhari zindagi khushiyon se bharde,
+tumhari muskaan kabhi kam na ho,
+aur tumhari har dua qubool ho. 🤲🌹.</textarea>
+        </div>
+
+        <div>
+          <label>Background music (optional) — paste MP3/OGG direct link, or leave blank to use default</label>
+          <input type="text" id="musicInput" placeholder="https://.../soft-birthday.mp3">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn primary" id="toggleMusic">Play / Pause Music</button>
+            <button class="btn" id="stopMusic" style="background:#f2d8ff;color:#2b1032">Stop</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="downloadBtn" style="background:#f8f0e6;color:#4b2a3a">Download PNG</button>
+        </div>
+        <div class="small">Tip: Customize name & message, then press <strong>Blow Candles</strong> and <strong>Open Gift</strong>.</div>
       </div>
     </div>
-  </nav>
 
-  <header id="about">
-    <div class="container">
-      <h1>Hello, I'm Muzamil Hussain</h1>
-      <p>Creative Web Developer | Designer | Freelancer</p>
-      <a href="#projects" class="btn btn-warning btn-lg mt-3">Explore My Work</a>
+    <!-- entrance overlay -->
+    <div class="entrance" id="entranceOverlay">
+      <div class="greeting" id="greetingText">Happy Birthday, Shehzadi!</div>
+      <div class="subtitle">May your day be filled with magic and love ✨</div>
     </div>
-  </header>
 
-  <section id="skills" class="skills py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">My Skills</h2>
-      <div class="row g-4 text-center">
-        <div class="col-md-3">
-          <div class="card p-4">
-            <i class="bi bi-filetype-html"></i>
-            <h5 class="mt-3">HTML</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-4">
-            <i class="bi bi-filetype-css"></i>
-            <h5 class="mt-3">CSS</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-4">
-            <i class="bi bi-braces"></i>
-            <h5 class="mt-3">JavaScript</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-4">
-            <i class="bi bi-bootstrap"></i>
-            <h5 class="mt-3">Bootstrap</h5>
-          </div>
-        </div>
+    <!-- gift overlay -->
+    <div class="overlay" id="giftOverlay">
+      <div class="gift" role="dialog" aria-modal="true">
+        <h2>For My Princess 👑</h2>
+        <p id="giftMessage">You are the light of my life. May this year bring you endless smiles and every dream fulfilled. Loves, [Your Name]</p>
+        <div style="margin-top:12px"><button class="btn primary" id="closeGift">Close</button></div>
       </div>
     </div>
-  </section>
 
-  <section id="projects" class="projects py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">My Projects</h2>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card">
-            <img src="https://picsum.photos/400/250?random=2" class="card-img-top" alt="Project 1">
-            <div class="card-body">
-              <h5 class="card-title">Project 1</h5>
-              <p class="card-text">Responsive website design using HTML & CSS.</p>
-              <a href="#" class="btn btn-warning">View Demo</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <img src="https://picsum.photos/400/250?random=3" class="card-img-top" alt="Project 2">
-            <div class="card-body">
-              <h5 class="card-title">Project 2</h5>
-              <p class="card-text">Bootstrap-based business website.</p>
-              <a href="#" class="btn btn-warning">View Demo</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <img src="https://picsum.photos/400/250?random=4" class="card-img-top" alt="Project 3">
-            <div class="card-body">
-              <h5 class="card-title">Project 3</h5>
-              <p class="card-text">JavaScript interactive app with animations.</p>
-              <a href="#" class="btn btn-warning">View Demo</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <img src="https://picsum.photos/600/300?random=5" class="card-img-top" alt="Project 4">
-            <div class="card-body">
-              <h5 class="card-title">Project 4</h5>
-              <p class="card-text">Personal portfolio website with animations.</p>
-              <a href="#" class="btn btn-warning">View Demo</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <img src="https://picsum.photos/600/300?random=6" class="card-img-top" alt="Project 5">
-            <div class="card-body">
-              <h5 class="card-title">Project 5</h5>
-              <p class="card-text">E-commerce landing page using HTML, CSS & JS.</p>
-              <a href="#" class="btn btn-warning">View Demo</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  </div>
 
-  <section id="contact" class="py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Contact Me</h2>
-      <form class="mx-auto" style="max-width: 600px;">
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Your Name">
-        </div>
-        <div class="mb-3">
-          <input type="email" class="form-control" placeholder="Your Email">
-        </div>
-        <div class="mb-3">
-          <textarea class="form-control" rows="5" placeholder="Your Message"></textarea>
-        </div>
-        <button type="submit" class="btn btn-warning w-100">Send Message</button>
-      </form>
-    </div>
-  </section>
+  <!-- html2canvas for download -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    // Elements
+    const entrance = document.getElementById('entranceOverlay');
+    const greetingText = document.getElementById('greetingText');
+    const bigname = document.getElementById('bigname');
+    const typingEl = document.getElementById('typing');
+    const nameInput = document.getElementById('nameInput');
+    const msgInput = document.getElementById('msgInput');
+    const candles = document.getElementById('candles');
+    const blowBtn = document.getElementById('blowBtn');
+    const giftBtn = document.getElementById('giftBtn');
+    const giftOverlay = document.getElementById('giftOverlay');
+    const closeGift = document.getElementById('closeGift');
+    const giftMessage = document.getElementById('giftMessage');
+    const musicInput = document.getElementById('musicInput');
+    const toggleMusic = document.getElementById('toggleMusic');
+    const stopMusic = document.getElementById('stopMusic');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-  <footer>
-    <p>&copy; 2025 Muzamil Hussain | All Rights Reserved</p>
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    // Audio
+    let audio = null;
+    const defaultMusic = 'https://cdn.pixabay.com/download/audio/2021/10/08/audio_9a1f3b3f3a.mp3?filename=gentle-piano-111907.mp3';
+
+    // Entrance animation
+    function showEntrance(){
+      greetingText.style.transform='scale(1)';
+      greetingText.style.opacity='1';
+      greetingText.animate([{transform:'scale(.8)','opacity':0},{transform:'scale(1.02)','opacity':1}],{duration:1100,easing:'cubic-bezier(.2,.8,.2,1)'});
+      setTimeout(()=>{document.querySelector('.subtitle').animate([{opacity:0},{opacity:1,transform:'translateY(0)'}],{duration:800,fill:'forwards'})},400);
+      // hide overlay after a few seconds
+      setTimeout(()=>{entrance.style.transition='opacity .7s';entrance.style.opacity='0';entrance.style.pointerEvents='none';setTimeout(()=>entrance.remove(),800)},3800);
+    }
+
+    // Typing effect
+    function typeText(element, text, speed=40){
+      element.textContent='';
+      let i=0;
+      const t = setInterval(()=>{
+        element.textContent += text.charAt(i);
+        i++;
+        if(i>text.length-1) clearInterval(t);
+      }, speed);
+    }
+
+    // Balloons, butterflies, hearts generator
+    const decor = document.getElementById('decor');
+    function spawnDecor(){
+      decor.innerHTML='';
+      const colors = ['#FF6B6B','#FFD56B','#7BE495','#8EC5FF','#C78CFF','#FF9EC3'];
+      for(let i=0;i<10;i++){
+        const d = document.createElement('div');
+        d.className = (i%3===0)?'butterfly':(i%3===1)?'heart':'balloon';
+        d.style.left = Math.random()*85 + '%';
+        d.style.top = 20 + Math.random()*60 + '%';
+        const size = 30 + Math.random()*60;
+        d.style.width = size+'px';
+        d.style.height = size+'px';
+        d.style.opacity = 0.9;
+        // appearance
+        if(d.className==='balloon'){
+          d.style.borderRadius = '50%';
+          d.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), ${colors[i%colors.length]})`;
+        } else if(d.className==='butterfly'){
+          d.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), ${colors[i%colors.length]})`;
+          d.style.borderRadius='50%';
+        } else {
+          // heart svg
+          d.innerHTML = '<svg viewBox="0 0 32 29" width="100%" height="100%"><path d="M23.6 0c-2.9 0-4.9 1.8-5.6 2.6-.7-.8-2.7-2.6-5.6-2.6C6 0 0 6 0 12.6 0 22 16 29 16 29s16-7 16-16.4C32 6 26 0 23.6 0z" fill="'+colors[i%colors.length]+'"/></svg>';
+        }
+        const dur = 8 + Math.random()*8;
+        d.style.animation = `float${i} ${dur}s ease-in-out ${Math.random()*2}s infinite`;
+        decor.appendChild(d);
+        // create keyframes dynamically
+        const key = `@keyframes float${i}{0%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-30px) rotate(6deg);}100%{transform:translateY(0) rotate(0deg);}}`;
+        const s = document.createElement('style'); s.innerHTML = key; document.head.appendChild(s);
+      }
+    }
+
+    // Fireworks canvas
+    const fw = document.getElementById('fireworks');
+    const fctx = fw.getContext('2d');
+    function resizeFW(){fw.width=window.innerWidth;fw.height=window.innerHeight}
+    window.addEventListener('resize',resizeFW);resizeFW();
+
+    const particles = [];
+    function spawnFirework(x,y,color){
+      const count = 40 + Math.floor(Math.random()*40);
+      for(let i=0;i<count;i++){
+        particles.push({x,y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,life:60+Math.random()*40,age:0,r:1+Math.random()*3,color});
+      }
+    }
+    function loopFW(){
+      fctx.clearRect(0,0,fw.width,fw.height);
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.age++;
+        const alpha = 1 - p.age/p.life;
+        fctx.globalAlpha = alpha;
+        fctx.fillStyle = p.color;
+        fctx.beginPath(); fctx.arc(p.x,p.y,p.r,0,Math.PI*2); fctx.fill();
+        if(p.age > p.life) particles.splice(i,1);
+      }
+      requestAnimationFrame(loopFW);
+    }
+    loopFW();
+
+    // occasional fireworks
+    setInterval(()=>{spawnFirework(100+Math.random()*(fw.width-200),200+Math.random()*250, ['#ffd56b','#ff6b6b','#8ec5ff','#c78cff'][Math.floor(Math.random()*4)])},1200);
+
+    // Candles generation
+    function makeCandles(n=5){
+      candles.innerHTML='';
+      for(let i=0;i<n;i++){
+        const c = document.createElement('div'); c.className='candle';
+        const flame = document.createElement('div'); flame.className='flame';
+        flame.style.animationDuration = (700+Math.random()*500)+'ms';
+        c.appendChild(flame);
+        candles.appendChild(c);
+      }
+      // position candles
+      const cs = candles.children; const w = candles.clientWidth || 220;
+      for(let i=0;i<cs.length;i++){ cs[i].style.marginLeft = (i?10:0)+'px'; }
+    }
+    makeCandles(6);
+
+    // Blow candles -> remove flames, spawn smoke and fireworks
+    function blowCandles(){
+      Array.from(document.querySelectorAll('.flame')).forEach(f=>{
+        f.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.3 translateY(-6px)'}],{duration:600,fill:'forwards'});
+        f.style.opacity=0;
+      });
+      // spawn gentle smoke paths
+      const s = document.getElementById('smoke'); s.innerHTML='';
+      for(let i=0;i<5;i++){
+        const cx = 50 + i*14; const p = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        p.setAttribute('cx',cx); p.setAttribute('cy',10); p.setAttribute('r',6); p.setAttribute('fill','rgba(255,255,255,0.6)');
+        s.appendChild(p);
+        p.animate([{transform:'translateY(0) scale(1)',opacity:0.9},{transform:'translateY(-80px) scale(1.6)',opacity:0}],{duration:2200 + i*200,iterations:1,easing:'ease-out'});
+      }
+      // big sparkle fireworks center
+      spawnFirework(window.innerWidth/2, window.innerHeight/2 - 120, '#ffd36b');
+    }
+
+    blowBtn.addEventListener('click', ()=>{
+      blowCandles();
+    });
+
+    // Gift overlay
+    giftBtn.addEventListener('click', ()=>{
+      giftMessage.textContent = msgInput.value || giftMessage.textContent;
+      giftOverlay.classList.add('show');
+    });
+    closeGift.addEventListener('click', ()=> giftOverlay.classList.remove('show'));
+
+    // Name & typing live
+    nameInput.addEventListener('input', ()=>{ bigname.textContent = 'For My ' + (nameInput.value || 'Shehzadi') + ' 👸'; });
+
+    // Typing message on load and when message changes
+    function showTypedMessage(){ typeText(typingEl, msgInput.value || ''); }
+    msgInput.addEventListener('input', ()=> showTypedMessage());
+
+    // Music controls
+    function ensureAudio(){ if(!audio){ audio = new Audio(); audio.loop=true; audio.volume=0.55; }}
+    toggleMusic.addEventListener('click', ()=>{
+      const url = musicInput.value.trim() || defaultMusic;
+      ensureAudio();
+      if(audio.src !== url) { audio.src = url; audio.play().catch(()=>alert('Autoplay blocked — click Play again.')); return; }
+      if(audio.paused) audio.play(); else audio.pause();
+    });
+    stopMusic.addEventListener('click', ()=>{ if(audio){ audio.pause(); audio=null; } });
+
+    // Download via html2canvas
+    downloadBtn.addEventListener('click', ()=>{
+      const node = document.querySelector('.card');
+      html2canvas(node, {scale:2,useCORS:true,backgroundColor:null}).then(canvas=>{
+        const link = document.createElement('a'); link.download = (nameInput.value||'shehzadi') + '-birthday.png'; link.href = canvas.toDataURL('image/png'); link.click();
+      }).catch(e=>alert('Download failed: '+e.message));
+    });
+
+    // initial behaviors
+    showEntrance(); spawnDecor(); showTypedMessage();
+
+    // small UX extras: click on entrance to skip
+    entrance.addEventListener('click', ()=>{ entrance.remove(); });
+
+    // occasionally spawn a firework at click
+    window.addEventListener('click', (e)=>{ spawnFirework(e.clientX,e.clientY, ['#ffd56b','#ff6b6b','#8ec5ff','#c78cff'][Math.floor(Math.random()*4)]) });
+
+    // accessibility: allow keyboard to open gift (g) and blow (b)
+    window.addEventListener('keydown', (e)=>{ if(e.key==='g') giftOverlay.classList.add('show'); if(e.key==='b') blowCandles(); });
+
+  </script>
 </body>
 </html>
